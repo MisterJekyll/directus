@@ -57,12 +57,16 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'], function(app, UICom
     initializeMap: function() {
       var that = this;
       var google = window.google;
-      var center = new google.maps.LatLng(40.77, -73.98);
+      //var center = new google.maps.LatLng(40.77, -73.98);
+      // HACK MJ
+      var center = new google.maps.LatLng(50.503887, 4.469936);
+      var mjz = 7;
 
       //If we have a value (Representing lat and long), set center to that value
       if(this.options.value) {
         var array = this.options.value.split(',');
         if(array) {
+          mjz=17;
           var lng = array.pop();
           var lat = array.pop();
           if(!isNaN(lat) && !isNaN(lng)) {
@@ -71,21 +75,29 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'], function(app, UICom
         }
       }
 
-      var mapOptions = {
+      // HACK MJ
+      /*var mapOptions = {
         center: center,
         zoom: 12
       };
       var map = new google.maps.Map(this.$el.find("#map-canvas").get(0), mapOptions);
+      */
+      var mapOptions = {
+        center: center,
+        zoom: mjz,
+        styles: window.mapstyle
+      };
+      window.map = new google.maps.Map(this.$el.find("#map-canvas").get(0), mapOptions);
 
       if (navigator.geolocation && !this.options.value) {
         navigator.geolocation.getCurrentPosition(function (position) {
           var initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-          map.setCenter(initialLocation);
+          window.map.setCenter(initialLocation);
         });
       }
 
       var input = (document.getElementById('pac-input'));
-      map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+      window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
       var searchBox = new google.maps.places.SearchBox((input));
 
       // Listen for the event fired when the user selects an item from the
@@ -94,17 +106,19 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'], function(app, UICom
         var places = searchBox.getPlaces();
 
         var bounds = new google.maps.LatLngBounds();
-        for (var i = 0; i < places.length; i++) {
+        // HACK MJ
+        /*for (var i = 0; i < places.length; i++) {
           bounds.extend(places[i].geometry.location);
         }
+        map.fitBounds(bounds);*/
+        MJsetNewAddress(places[0]);
 
-        map.fitBounds(bounds);
       });
 
       // Bias the SearchBox results towards places that are within the bounds of the
       // current map's viewport.
-      google.maps.event.addListener(map, 'bounds_changed', function() {
-        var bounds = map.getBounds();
+      google.maps.event.addListener(window.map, 'bounds_changed', function() {
+        var bounds = window.map.getBounds();
         searchBox.setBounds(bounds);
       });
 
@@ -114,23 +128,39 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'], function(app, UICom
         if(arr) {
           var lng2 = arr.pop();
           var lat2 = arr.pop();
-          this.marker = new google.maps.Marker({
+          // HACK MJ
+          /*this.marker = new google.maps.Marker({
             position: new google.maps.LatLng(lat2, lng2),
-            map:map
+            map:window.map
+          });
+          */
+          window.marker = new google.maps.Marker({
+            position: new google.maps.LatLng(lat2, lng2),
+            map:window.map
           });
         }
       }
 
       //On click, update value with click location
-      google.maps.event.addListener(map, 'click', function(e) {
-        if(that.marker) {
+      google.maps.event.addListener(window.map, 'click', function(e) {
+        // HACK MJ
+        /*if(that.marker) {
           that.marker.setPosition(e.latLng);
         } else {
           that.marker = new google.maps.Marker({
             position: e.latLng,
-            map:map
+            map:window.map
+          });
+        }*/
+        if(window.marker) {
+          window.marker.setPosition(e.latLng);
+        } else {
+          window.marker = new google.maps.Marker({
+            position: e.latLng,
+            map:window.map
           });
         }
+
         var latlngVal = e.latLng.lat() + "," + e.latLng.lng();
         that.$el.find('input').val(latlngVal);
 

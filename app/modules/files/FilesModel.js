@@ -65,6 +65,10 @@ function(app, _, Backbone, EntriesModel, Notification, __t, Utils, File) {
       }
 
       var model = this;
+
+      // HACK MJ
+      mj_extract_meta_fromfile(file);
+
       File.getDataFromInput(file, function(fileData, details, file) {
         File.isImage(fileData, function(isImage) {
           var modelData = {

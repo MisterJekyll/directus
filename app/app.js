@@ -6,6 +6,9 @@ define(function(require, exports, module) {
   var Handlebars     = require('handlebars'),
       typetools      = require("typetools");
 
+  // HACK MJ
+  require('mj-app');
+
   // Globally load Handlebars helpers
   require('helpers');
 
