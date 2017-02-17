@@ -18,6 +18,9 @@ require.config({
     "noty_theme": "../assets/js/libs/noty_theme",
     "polyglot":   "../assets/js/libs/polyglot.min",
 
+    // HACK MJ
+    "handsontable": "../assets/js/libs/handsontable",
+
     // JavaScript folders.
     "libs":       "../assets/js/libs",
     "plugins":    "../assets/js/plugins",
@@ -66,7 +69,14 @@ require.config({
     'plugins/backbone.trackit': ['backbone'],
     "plugins/bootstrap-dropdown": ["jquery"],
     "plugins/typeahead": ["jquery"],
-    "plugins/bootstrap-tooltip": ["jquery"]
+    "plugins/bootstrap-tooltip": ["jquery"],
+
+    // HACK MJ
+    "handsontable": {
+      deps: ['moment', 'pikaday', 'zeroclipboard'],
+      exports: 'Handsontable'
+    }
+
   }
 
 });

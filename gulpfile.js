@@ -75,6 +75,7 @@ gulp.task('scripts', function(cb) {
 // Include what's neccesary
 // @TODO: include all vendors
 var vendorFiles = [
+  'assets/js/libs/exif.js',// HACK MJ
   'assets/js/libs/handlebars.js',
   //'assets/js/libs/bootstrap.js',
   'assets/js/libs/require.js',
