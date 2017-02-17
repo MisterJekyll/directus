@@ -282,6 +282,11 @@ gulp.task('move', function() {
     './assets/js/libs/jquery.min.map',
     './assets/js/libs/wysihtml5.js',
     './assets/css/wysiwyg.css',
+
+      // HACK MJ
+    './assets/css/pikaday.css',
+    './assets/css/handsontable.css',
+
     './bin/**',
     //'./extensions/**',
     './installation/**',
