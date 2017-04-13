@@ -29,7 +29,8 @@ class Auth extends Route
 
         if ($email && $password) {
             $authService = new AuthService($this->app);
-            $accessToken = $authService->requestToken($email, $password);
+            // HACK MJ
+            /*$accessToken = $authService->requestToken($email, $password);
 
             if ($accessToken) {
                 unset($response['error']);
@@ -37,6 +38,14 @@ class Auth extends Route
                 $response['data'] = [
                     'token' => $accessToken
                 ];
+            }*/
+
+            $user = $authService->requestToken($email, $password);
+            if ($user) {
+                unset($response['error']);
+                unset($user->password, $user->salt, $user->access_token);
+                $response['success'] = true;
+                $response['data'] = $user;
             }
         }
 

@@ -20,7 +20,8 @@ class AuthService extends AbstractService
             $user = $auth->getUserByAuthentication($email, $password);
 
             if ($user) {
-                return $user['token'];
+                //return $user['token'];
+                return $user;
             }
         }
 
