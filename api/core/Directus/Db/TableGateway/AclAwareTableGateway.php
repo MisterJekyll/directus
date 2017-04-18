@@ -10,6 +10,7 @@ use Directus\Acl\Exception\UnauthorizedTableDeleteException;
 use Directus\Acl\Exception\UnauthorizedTableEditException;
 use Directus\Auth\Provider as Auth;
 use Directus\Db\Exception\DuplicateEntryException;
+use Directus\Db\FactoryTableGateway;
 use Directus\Db\RowGateway\AclAwareRowGateway;
 use Directus\Db\TableSchema;
 use Directus\Util\ArrayUtils;
@@ -66,15 +67,14 @@ class AclAwareTableGateway extends BaseTableGateway
      * Underscore to camelcase table name to namespaced table gateway classname,
      * e.g. directus_users => \Directus\Db\TableGateway\DirectusUsersTableGateway
      */
-    public static function makeTableGatewayFromTableName($acl, $table, $adapter)
+    public static function makeTableGatewayFromTableName($acl, $tableName, $adapter)
     {
-        // @TODO: similar method to the parent class
-        $tableGatewayClassName = Formatting::underscoreToCamelCase($table) . 'TableGateway';
-        $tableGatewayClassName = __NAMESPACE__ . '\\' . $tableGatewayClassName;
-        if (class_exists($tableGatewayClassName)) {
-            return new $tableGatewayClassName($acl, $adapter);
-        }
-        return new self($acl, $table, $adapter);
+        $options = [
+            'acl' => $acl,
+            'adapter' => $adapter
+        ];
+
+        return FactoryTableGateway::create($tableName, $options, FactoryTableGateway::ACL_AWARE);
     }
 
     public function newRow($table = null, $pk_field_name = null)
@@ -83,18 +83,6 @@ class AclAwareTableGateway extends BaseTableGateway
         $pk_field_name = is_null($pk_field_name) ? $this->primaryKeyFieldName : $pk_field_name;
         $row = new AclAwareRowGateway($this->acl, $pk_field_name, $table, $this->adapter);
         return $row;
-    }
-
-    /**
-     * Make a new table gateway
-     *
-     * @param $tableName
-     *
-     * @return BaseTableGateway
-     */
-    public function makeTable($tableName)
-    {
-        return new self($this->acl, $tableName, $this->adapter);
     }
 
     /**
@@ -222,7 +210,15 @@ class AclAwareTableGateway extends BaseTableGateway
 
             $result = parent::executeInsert($insert);
             $insertTableGateway = new self($this->acl, $insertTable, $this->adapter);
-            $resultData = $insertTableGateway->find($this->getLastInsertValue());
+
+            // hotfix: directus_tables does not have auto generated value primary key
+            if ($this->getTable() === 'directus_tables') {
+                $generatedValue = ArrayUtils::get($insertDataAssoc, $this->primaryKeyFieldName, 'table_name');
+            } else {
+                $generatedValue = $this->getLastInsertValue();
+            }
+
+            $resultData = $insertTableGateway->find($generatedValue);
 
             $this->runHook('table.insert', [$insertTable, $resultData]);
             $this->runHook('table.insert.' . $insertTable, [$resultData]);
