@@ -10,6 +10,9 @@ Icon
 .DS_Store
 dist/*
 
+# MJ HACK
+!dist/customs/uis/mj_price_grid/*
+
 # Don't track composer phar/vendors
 composer.phar
 vendor
