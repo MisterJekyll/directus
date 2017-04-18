@@ -77,6 +77,12 @@ $cacheBuster = Directus\Util\Git::getCloneHash($git);
             padding: 0;
             height: 100%;
             width: 100%;
+
+            /* HACK MJ */
+            background: -moz-radial-gradient(center, ellipse cover, #ffffff 0%, #b2b2b2 100%);
+            background: -webkit-radial-gradient(center, ellipse cover, #ffffff 0%,#b2b2b2 100%);
+            background: radial-gradient(ellipse at center, #ffffff 0%,#b2b2b2 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#b2b2b2',GradientType=1 );
         }
     </style>
 </head>
@@ -84,10 +90,12 @@ $cacheBuster = Directus\Util\Git::getCloneHash($git);
 
 <!-- HACK MJ logo -->
 <img src="https://misterjekyll.be/img/logos/svg/jekyll-logo.svg" width="308">
-<br>
-<h1 align="center"><?php echo APPLICATION_NAME; ?> ADMIN</h1>
 
 <form action="<?= DIRECTUS_PATH ?>api/1/auth/login" method="post" class="login-box" autocomplete="off">
+
+    <!-- HACK MJ title -->
+    <h1 align="center"><?php echo APPLICATION_NAME; ?> ADMIN</h1>
+
     <div class='login-panel'>
         <p class="">
             <input type="email" name="email" placeholder="<?= __t('placeholder_email_address'); ?>" spellcheck="false"
