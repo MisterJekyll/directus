@@ -45,7 +45,7 @@ $cacheBuster = Directus\Util\Git::getCloneHash($git);
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1.0">
     <meta name="robots" content="noindex">
 
-    <title>Directus Login</title>
+    <title>Database Login</title>
 
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
@@ -81,6 +81,11 @@ $cacheBuster = Directus\Util\Git::getCloneHash($git);
     </style>
 </head>
 <body>
+
+<!-- HACK MJ logo -->
+<img src="https://misterjekyll.be/img/logos/svg/jekyll-logo.svg" width="308">
+<br>
+<h1 align="center"><?php echo APPLICATION_NAME; ?> ADMIN</h1>
 
 <form action="<?= DIRECTUS_PATH ?>api/1/auth/login" method="post" class="login-box" autocomplete="off">
     <div class='login-panel'>
