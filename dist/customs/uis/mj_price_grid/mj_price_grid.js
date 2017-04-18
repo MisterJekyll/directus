@@ -3,7 +3,7 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'],function(app, UIComp
 
   'use strict';
 
-  var template = 'CCCD <div id="mjpricegrid"></div>';
+  var template = '<div id="mjpricegrid"></div>';
 
   var Input = UIView.extend({
 
@@ -23,11 +23,55 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'],function(app, UIComp
     },
 
     initialize: function() {
-      console.log('MJinit');
+      console.log('MJ mjpricegrid init');
     },
 
     afterRender: function() {
-      this.$el.find('#mjpricegrid').html('TEST');
+      //this.$el.find('#mjpricegrid').html('TEST');
+      var csv_data = ',Ford,Volvo,Toyota,Honda' +'\n'+
+                     'test,test2,,,';
+      var csv = $.csv.toArrays(csv_data);
+
+      var container = document.getElementById('mjpricegrid');
+      var hot = new Handsontable(container, {
+        data: csv,
+        width: 584,
+        height: 320,
+        startRows: 8,
+        startCols: 5,
+        minSpareRows: 1,
+        fixedRowsTop: 1,
+        fixedColumnsLeft: 1,
+        contextMenu: true,
+        rowHeaders: false,
+        colHeaders: false,
+        currentRowClassName: 'currentRow',
+        currentColClassName: 'currentCol',
+        cells: function (row, col, prop) {
+          var cellProperties = {};
+
+          //if (row === 0 || this.instance.getData()[row][col] === 'readOnly') {
+          //  cellProperties.readOnly = true; // make cell read-only if it is first row or the text reads 'readOnly'
+          //}
+          if (row === 0 || col === 0) {
+            cellProperties.renderer = function firstRowRenderer(instance, td, row, col, prop, value, cellProperties) {
+              Handsontable.renderers.TextRenderer.apply(this, arguments);
+              td.style.fontWeight = 'bold';
+              td.style.background = '#ddd';
+              //td.style.color = 'green';
+            }; // uses function directly
+          }
+          //else {
+          //  cellProperties.renderer = "negativeValueRenderer"; // uses lookup map
+          //}
+
+          return cellProperties;
+        }
+      });
+
+      var temp_data = hot.getData();
+      var temp_csv = $.csv.fromArrays(temp_data);
+      console.log(temp_csv);
     }
 
   });

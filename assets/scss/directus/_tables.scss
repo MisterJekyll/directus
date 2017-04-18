@@ -953,3 +953,10 @@ tbody.remove-hover-state {
   -webkit-transform: rotate(-1deg);
   -moz-transform: rotate(-1deg);
 }
+
+
+
+// HACK MJ
+.currentCol, .currentRow {
+  background-color: #E7E8EF !important;
+}

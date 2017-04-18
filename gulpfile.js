@@ -76,6 +76,11 @@ gulp.task('scripts', function(cb) {
 // @TODO: include all vendors
 var vendorFiles = [
   'assets/js/libs/exif.js',// HACK MJ
+  'assets/js/libs/moment.min.js',// HACK MJ
+  'assets/js/libs/numbro.js',// HACK MJ
+  'assets/js/libs/pikaday.js',// HACK MJ
+  'assets/js/libs/ZeroClipboard.js',// HACK MJ
+  'assets/js/libs/handsontable.js',// HACK MJ
   'assets/js/libs/handlebars.js',
   //'assets/js/libs/bootstrap.js',
   'assets/js/libs/require.js',
@@ -279,6 +284,7 @@ gulp.task('move', function() {
     './api/schema.sql',
     // for login.php
     './assets/js/libs/jquery.js',
+    './assets/js/libs/jquery.csv.js',
     './assets/js/libs/jquery.min.map',
     './assets/js/libs/wysihtml5.js',
     './assets/css/wysiwyg.css',
