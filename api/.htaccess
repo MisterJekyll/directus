@@ -1,5 +1,10 @@
 Options +SymLinksIfOwnerMatch
 
+<Limit GET POST PUT DELETE HEAD OPTIONS PATCH>
+order deny,allow
+allow from all
+</Limit>
+
 <ifModule mod_rewrite.c>
     RewriteEngine On
     # Uncomment this if you are getting routing errors:
