@@ -3,7 +3,7 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'],function(app, UIComp
 
   'use strict';
 
-  var template = 'CCC2 <div id="mjpricegrid"></div>';
+  var template = 'CCCD <div id="mjpricegrid"></div>';
 
   var Input = UIView.extend({
 
