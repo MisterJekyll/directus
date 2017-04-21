@@ -3,7 +3,7 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'],function(app, UIComp
 
   'use strict';
 
-  var template = '<div id="mjpricegrid"></div>';
+  var template = '<input type="hidden" id="mjpricegrid_value" name="{{name}}" value="{{value}}" /><div id="mjpricegrid"></div>';
 
   var Input = UIView.extend({
 
@@ -23,13 +23,13 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'],function(app, UIComp
     },
 
     initialize: function() {
-      console.log('MJ mjpricegrid init');
+      //console.log('MJ mjpricegrid init');
     },
 
     afterRender: function() {
       //this.$el.find('#mjpricegrid').html('TEST');
-      var csv_data = ',Ford,Volvo,Toyota,Honda' +'\n'+
-                     'test,test2,,,';
+
+      var csv_data = this.options.value || ",,,,,\n,,,,,\n,,,,,\n";
       var csv = $.csv.toArrays(csv_data);
 
       var container = document.getElementById('mjpricegrid');
@@ -66,12 +66,20 @@ define(['app', 'core/UIComponent', 'core/UIView', 'core/t'],function(app, UIComp
           //}
 
           return cellProperties;
+        },
+        afterChange: function(changes, source) {
+          var that = this;
+          var input_container = document.getElementById('mjpricegrid_value');
+
+          var gridData = that.getData();
+          var cleanedGridData = [];
+          $.each(gridData, function(rowKey, object){
+            if (!that.isEmptyRow(rowKey)) cleanedGridData[rowKey] = object;
+          });
+          var csv = $.csv.fromArrays(cleanedGridData).trim(); //console.log(csv);
+          input_container.value = csv;
         }
       });
-
-      var temp_data = hot.getData();
-      var temp_csv = $.csv.fromArrays(temp_data);
-      console.log(temp_csv);
     }
 
   });
