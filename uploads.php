@@ -41,5 +41,6 @@ krsort($files);
 $files = call_user_func_array('array_merge', $files);
 $files_json = json_encode($files);
 
+header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json; charset=utf-8');
 exit($files_json);
