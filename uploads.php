@@ -37,7 +37,7 @@ foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, Rec
     $files[$date][] = array('slug'=>$filename.'-'.$date.'-'.$size, 'url'=>(isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST'].'/'.$dir.'/'.$filename);
     //echo $filename .'-'. $date .'-'. $size . "\n";
 }
-ksort($files);
+krsort($files);
 $files = call_user_func_array('array_merge', $files);
 $files_json = json_encode($files);
 
