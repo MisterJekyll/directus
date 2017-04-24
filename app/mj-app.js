@@ -2,6 +2,8 @@
  * Created by clement on 2/02/17.
  */
 
+PDFJS.workerSrc = '/assets/js/libs/pdf.worker.js';
+
 //https://snazzymaps.com/style/29/light-monochrome
 window.mapstyle = [
     {
@@ -335,57 +337,68 @@ function mj_extract_meta_fromfile(file) {console.log('mj_extract_meta_fromfile()
     // EXTRACT THUMBNAIL FROM PDF
     else if (file.type == 'application/pdf') {
         var reader  = new FileReader();
-        reader.addEventListener("load", function(){
-            PDFJS.workerSrc = '/assets/js/libs/pdf.worker.js';
-            PDFJS.getDocument(reader.result).then(function(pdf) {
-                console.log('[PDF] Number of pages: ' + pdf.numPages);
-                pdf.getPage(1).then(function(page){
-                    var viewport = page.getViewport(0.5);
-                    var canvas = document.createElement('canvas');
-                    var ctx = canvas.getContext('2d');
-                    canvas.height = viewport.height;
-                    canvas.width = viewport.width;
-                    var renderContext = {
-                        canvasContext: ctx,
-                        viewport: viewport
-                    };
-                    page.render(renderContext).then(function(){
-                        ctx.globalCompositeOperation = "destination-over";
-                        ctx.fillStyle = "#fff";
-                        ctx.fillRect( 0, 0, canvas.width, canvas.height );
-                        var img_src = canvas.toDataURL();
-                        var $img = $('#fileAddInput').siblings('.ui-file-container').find('.single-image-thumbnail').find('img')
-                            .attr("src", img_src);
-                        canvas.remove();
-                    });
-                });
-            });
-        }, false);
+        reader.addEventListener("load", function(){ getThumbPDFFromUrl(reader.result); }, false);
         reader.readAsDataURL(file);
     }
 
     // EXTRACT THUMBNAIL FROM VIDEO (MP4)
     else if (file.type == 'video/mp4') {
-        var canvas = $('<canvas class=snapshot_generator></canvas>').appendTo(document.body)[0];
-        var $video = $('<video muted class=snapshot_generator></video>').appendTo(document.body);
-        var step_2_events_fired = 0;
-        $video.one('loadedmetadata loadeddata suspend', function() {
-            if (++step_2_events_fired == 3) {
-                $video.one('seeked', function() {
-                    canvas.height = this.videoHeight;
-                    canvas.width = this.videoWidth;
-                    canvas.getContext('2d').drawImage(this, 0, 0);
-                    var img_src = canvas.toDataURL();
-                    var $img = $('#fileAddInput').siblings('.ui-file-container').find('.single-image-thumbnail').find('img')
-                        .attr("src", img_src);
-                    $video.remove();
-                    $(canvas).remove();
-                }).prop('currentTime', 1);
-            }
-        }).prop('src', URL.createObjectURL(file));
+        getThumbVideoFromUrl(URL.createObjectURL(file));
     }
 
+}
 
+function getThumbVideoFromUrl(url) {
+    console.log('[VIDEO] getThumbVideoFromUrl()');
+    var canvas = $('<canvas class=snapshot_generator></canvas>').appendTo(document.body)[0];
+    var $video = $('<video muted class=snapshot_generator></video>').appendTo(document.body);
+    var step_2_events_fired = 0;
+    $video.one('loadedmetadata loadeddata suspend', function() {
+        if (++step_2_events_fired == 3) {
+            $video.one('seeked', function() {
+                canvas.height = this.videoHeight;
+                canvas.width = this.videoWidth;
+                canvas.getContext('2d').drawImage(this, 0, 0);
+                var img_src = canvas.toDataURL();
 
+                console.log('[VIDEO] thumbnail done!');
 
+                $img_el = $('#fileAddInput').siblings('.ui-file-container').find('.single-image-thumbnail').find('img');
+                if ($img_el.length) var $img = $img_el.attr("src", img_src);
+
+                $video.remove();
+                $(canvas).remove();
+            }).prop('currentTime', 1);
+        }
+    }).prop('src', url);
+}
+
+function getThumbPDFFromUrl(url) {
+    console.log('[PDF] getThumbPDFFromUrl()');
+    PDFJS.getDocument(url).then(function(pdf) {
+        console.log('[PDF] Number of pages: '+pdf.numPages);
+        pdf.getPage(1).then(function(page){
+            var viewport = page.getViewport(0.5);
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+            var renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+            page.render(renderContext).then(function(){
+                ctx.globalCompositeOperation = "destination-over";
+                ctx.fillStyle = "#fff";
+                ctx.fillRect( 0, 0, canvas.width, canvas.height );
+                var img_src = canvas.toDataURL();
+                var $img = $('#fileAddInput').siblings('.ui-file-container').find('.single-image-thumbnail').find('img')
+                    .attr("src", img_src);
+
+                console.log('[PDF] thumbnail done!');
+
+                canvas.remove();
+            });
+        });
+    });
 }

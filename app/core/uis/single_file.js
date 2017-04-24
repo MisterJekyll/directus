@@ -327,6 +327,28 @@ define([
       var isImage = _.contains(['image', 'embed'], type);
       var thumbUrl = isImage ? url : app.PATH + 'assets/img/document.png';
 
+      // HACK MJ
+      var isVideo = _.contains(['video'], type);
+      if (isVideo) {
+        // example of url: /storage/uploads/thumbs/27.mp4
+        // converted to: /storage/uploads/00000000027.mp4
+        var tmp_url = url.replace(/^.*[\\\/]/, '');
+        var file_ext = tmp_url.split('.').pop();
+        var file_id = parseInt(tmp_url.replace('.'+file_ext, ''));
+        var full_url = '/storage/uploads/'+("00000000000"+file_id).slice(-11)+'.'+file_ext;
+        thumbUrl = getThumbVideoFromUrl(full_url);
+      }
+      var isPdf = (this.fileModel.get('type')=='application/pdf');
+      if (isPdf) {
+        // example of url: /storage/uploads/thumbs/27.pdf
+        // converted to: /storage/uploads/00000000027.pdf
+        var tmp_url = url.replace(/^.*[\\\/]/, '');
+        var file_ext = tmp_url.split('.').pop();
+        var file_id = parseInt(tmp_url.replace('.'+file_ext, ''));
+        var full_url = '/storage/uploads/'+("00000000000"+file_id).slice(-11)+'.'+file_ext;
+        thumbUrl = getThumbPDFFromUrl(full_url);
+      }
+
       if(data.type) {
         if(data.type === 'embed/youtube') {
           data.size = app.seconds_convert(data.size);
