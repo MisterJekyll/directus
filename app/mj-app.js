@@ -3,6 +3,7 @@
  */
 
 PDFJS.workerSrc = '/assets/js/libs/pdf.worker.js';
+pdf_loading_task;
 
 //https://snazzymaps.com/style/29/light-monochrome
 window.mapstyle = [
@@ -375,7 +376,8 @@ function getThumbVideoFromUrl(url) {
 
 function getThumbPDFFromUrl(url) {
     console.log('[PDF] getThumbPDFFromUrl()');
-    PDFJS.getDocument(url).then(function(pdf) {
+    pdf_loading_task = PDFJS.getDocument(url);
+    pdf_loading_task.then(function(pdf) {
         console.log('[PDF] Number of pages: '+pdf.numPages);
         pdf.getPage(1).then(function(page){
             var viewport = page.getViewport(0.5);
@@ -398,6 +400,7 @@ function getThumbPDFFromUrl(url) {
                 console.log('[PDF] thumbnail done!');
 
                 canvas.remove();
+                pdf_loading_task.destroy();
             });
         });
     });
