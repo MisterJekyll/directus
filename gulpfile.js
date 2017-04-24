@@ -81,6 +81,7 @@ var vendorFiles = [
   'assets/js/libs/pikaday.js',// HACK MJ
   'assets/js/libs/ZeroClipboard.js',// HACK MJ
   'assets/js/libs/handsontable.js',// HACK MJ
+  'assets/js/libs/pdf.js',// HACK MJ
   'assets/js/libs/handlebars.js',
   //'assets/js/libs/bootstrap.js',
   'assets/js/libs/require.js',
@@ -208,7 +209,8 @@ gulp.task('templates', function() {
     .pipe(gulp.dest('dist/app/'));
 });
 
-var singlePageFiles = ['./main.html', './login.php'];
+//var singlePageFiles = ['./main.html', './login.php'];
+var singlePageFiles = ['./main.html', './login.php', './uploads.php']; // HACK MJ
 gulp.task('singlepage', function () {
   return gulp.src(singlePageFiles)
     .pipe(prohtml())
@@ -287,6 +289,7 @@ gulp.task('move', function() {
     './assets/js/libs/jquery.csv.js',
     './assets/js/libs/jquery.min.map',
     './assets/js/libs/wysihtml5.js',
+    './assets/js/libs/pdf.worker.js', // HACK MJ
     './assets/css/wysiwyg.css',
 
       // HACK MJ

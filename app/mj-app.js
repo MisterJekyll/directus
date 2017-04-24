@@ -282,11 +282,13 @@ function MJsetNewAddress(address) {
     }
 
     document.getElementById("mj-loading").style.display = 'none';
+    document.getElementById("mainLogoBox").getElementsByClassName('directus-logo').classList.add("static");
 }
 
 function MJreverseGeocode(lat,lng) {
     if (MJvalidateLatLng(lat) && MJvalidateLatLng(lng)) {
         document.getElementById("mj-loading").style.display = 'inline-block';
+        document.getElementById("mainLogoBox").getElementsByClassName('directus-logo').classList.remove("static");
         $.getJSON("https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng, function(data) {
             if (data && data.results && data.results.length>0) {
                 setTimeout(function(){MJsetNewAddress(data.results[0]);}, 3000);
@@ -299,29 +301,70 @@ function MJreverseGeocode(lat,lng) {
     }
 }
 
-function mj_extract_meta_fromfile(file) {
+function mj_extract_meta_fromfile(file) {console.log('mj_extract_meta_fromfile()');
     if (!file) return;
-    EXIF.getData(file, function() {
-        var lng_raw = EXIF.getTag(this, 'GPSLongitude');
-        if (lng_raw) {
-            var lat_raw = EXIF.getTag(this, 'GPSLatitude');
-            var lat_ref = EXIF.getTag(this, 'GPSLatitudeRef');
-            var lng_ref = EXIF.getTag(this, 'GPSLongitudeRef');
-            if (lng_raw.length>0) {
-                var lng = MJtoDecimal(lng_raw);
-                if (lng_ref == "W") lng = lng * -1;
-                var lat = MJtoDecimal(lat_raw);
-                if (lat_ref == "S") lat = lat * -1;
-                // confirm
-                if (window.map && window.marker) {
-                    var r = confirm("Mettre à jour la localisation sur base de la photo?");
-                    if (r == true) {
+    console.log(file.type);
+
+    // EXTRACT GPS DATA FROM PHOTOS
+    if (file.type == 'image/jpeg' || file.type == 'image/png') {
+        EXIF.getData(file, function() {
+            var lng_raw = EXIF.getTag(this, 'GPSLongitude');
+            if (lng_raw) {
+                var lat_raw = EXIF.getTag(this, 'GPSLatitude');
+                var lat_ref = EXIF.getTag(this, 'GPSLatitudeRef');
+                var lng_ref = EXIF.getTag(this, 'GPSLongitudeRef');
+                if (lng_raw.length>0) {
+                    var lng = MJtoDecimal(lng_raw);
+                    if (lng_ref == "W") lng = lng * -1;
+                    var lat = MJtoDecimal(lat_raw);
+                    if (lat_ref == "S") lat = lat * -1;
+                    // confirm
+                    if (window.map && window.marker) {
+                        var r = confirm("Mettre à jour la localisation sur base de la photo?");
+                        if (r == true) {
+                            MJreverseGeocode(lat,lng);
+                        }
+                    } else {
                         MJreverseGeocode(lat,lng);
                     }
-                } else {
-                    MJreverseGeocode(lat,lng);
                 }
             }
-        }
-    });
+        });
+    }
+
+    // EXTRACT THUMBNAIL FROM PDF
+    else if (file.type == 'application/pdf') {
+        var reader  = new FileReader();
+        reader.addEventListener("load", function () {
+            PDFJS.workerSrc = '/assets/js/libs/pdf.worker.js';
+            PDFJS.getDocument(reader.result).then(function(pdf) {
+                console.log('[PDF] Number of pages: ' + pdf.numPages);
+                pdf.getPage(1).then(function(page){
+                    var viewport = page.getViewport(0.5);
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    var renderContext = {
+                        canvasContext: ctx,
+                        viewport: viewport
+                    };
+                    page.render(renderContext).then(function(){
+                        ctx.globalCompositeOperation = "destination-over";
+                        ctx.fillStyle = "#fff";
+                        ctx.fillRect( 0, 0, canvas.width, canvas.height );
+                        var img_src = canvas.toDataURL();
+                        var $img = $('#fileAddInput').siblings('.ui-file-container').find('.single-image-thumbnail').find('img')
+                            .attr("src", img_src);
+                        canvas.remove();
+                    });
+                });
+            });
+        }, false);
+        reader.readAsDataURL(file);
+    }
+
+
+
+
 }
