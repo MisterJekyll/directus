@@ -295,6 +295,7 @@ gulp.task('move', function() {
       // HACK MJ
     './assets/css/pikaday.css',
     './assets/css/handsontable.css',
+    './assets/css/mj-app.css',
 
     './bin/**',
     //'./extensions/**',

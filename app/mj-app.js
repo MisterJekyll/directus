@@ -335,7 +335,7 @@ function mj_extract_meta_fromfile(file) {console.log('mj_extract_meta_fromfile()
     // EXTRACT THUMBNAIL FROM PDF
     else if (file.type == 'application/pdf') {
         var reader  = new FileReader();
-        reader.addEventListener("load", function () {
+        reader.addEventListener("load", function(){
             PDFJS.workerSrc = '/assets/js/libs/pdf.worker.js';
             PDFJS.getDocument(reader.result).then(function(pdf) {
                 console.log('[PDF] Number of pages: ' + pdf.numPages);
@@ -362,6 +362,27 @@ function mj_extract_meta_fromfile(file) {console.log('mj_extract_meta_fromfile()
             });
         }, false);
         reader.readAsDataURL(file);
+    }
+
+    // EXTRACT THUMBNAIL FROM VIDEO (MP4)
+    else if (file.type == 'video/mp4') {
+        var canvas = $('<canvas class=snapshot_generator></canvas>').appendTo(document.body)[0];
+        var $video = $('<video muted class=snapshot_generator></video>').appendTo(document.body);
+        var step_2_events_fired = 0;
+        $video.one('loadedmetadata loadeddata suspend', function() {
+            if (++step_2_events_fired == 3) {
+                $video.one('seeked', function() {
+                    canvas.height = this.videoHeight;
+                    canvas.width = this.videoWidth;
+                    canvas.getContext('2d').drawImage(this, 0, 0);
+                    var img_src = canvas.toDataURL();
+                    var $img = $('#fileAddInput').siblings('.ui-file-container').find('.single-image-thumbnail').find('img')
+                        .attr("src", img_src);
+                    $video.remove();
+                    $(canvas).remove();
+                }).prop('currentTime', 1);
+            }
+        }).prop('src', URL.createObjectURL(file));
     }
 
 
