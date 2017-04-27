@@ -7,6 +7,9 @@
  */
 
 $dir = 'storage/uploads';
+
+$max_file_size = 20; // in MB
+
 $mail_from_name = 'Fermalux';
 $mail_from = 'fermalux@misterjekyll.com';
 $mail_subject = 'Votre fichier ci-joint';
@@ -32,10 +35,14 @@ if (isset($_GET['blob_from_url'])) {
     $file = $path.$filename;
     $return = new stdClass();
     if (file_exists($file)) {
-        $file_bin = file_get_contents($file);
-        $file_base64 = base64_encode($file_bin);
-        $return->success = true;
-        $return->file = $file_base64;
+        if (filesize($file) > ($max_file_size*1000000)) {
+            $return->success = false;
+        } else {
+            $file_bin = file_get_contents($file);
+            $file_base64 = base64_encode($file_bin);
+            $return->success = true;
+            $return->file = $file_base64;
+        }
     } else {
         $return->success = false;
     }
@@ -47,7 +54,7 @@ if (isset($_GET['blob_from_url'])) {
     $file = $path.$filename;
     $return = new stdClass();
     if (file_exists($file)) {
-        if (filesize($file)>20000000) { // 20mb
+        if (filesize($file) > ($max_file_size*1000000)) {
             // do something else?
             $return->success = false;
         } else {
@@ -85,6 +92,7 @@ if (isset($_GET['blob_from_url'])) {
 
         // size
         $size = $file->getSize();
+        if ($size > ($max_file_size*1000000)) continue;
 
         // date
         $date = $file->getMTime();
