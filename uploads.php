@@ -7,6 +7,18 @@
  */
 
 $dir = 'storage/uploads';
+$mail_from_name = 'Fermalux';
+$mail_from = 'fermalux@misterjekyll.com';
+$mail_subject = 'Votre fichier ci-joint';
+$mail_html = '<a href="http://www.fermalux.be">
+<img src="http://www.fermalux.be/images/skins/fermalux2016/images/logo.png" alt="Fermalux">
+</a><br><br>
+Cher client,<br><br>
+Nous avons le plaisir de vous faire parvenir le document demandé ci-joint.<br><br>
+Cordialement,<br>
+L\'équipe Fermalux<br>
+';
+
 
 /////////////////////////////////////
 
@@ -15,6 +27,7 @@ header('Content-Type: application/json; charset=utf-8');
 $path = realpath('./'.$dir);
 
 if (isset($_GET['blob_from_url'])) {
+
     $filename = str_replace((isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST'].'/'.$dir,'',$_GET['blob_from_url']);
     $file = $path.$filename;
     $return = new stdClass();
@@ -27,6 +40,39 @@ if (isset($_GET['blob_from_url'])) {
         $return->success = false;
     }
     exit(json_encode($return));
+
+} else if (isset($_GET['mail_from_url'])) {
+
+    $filename = str_replace((isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST'].'/'.$dir,'',$_GET['mail_from_url']);
+    $file = $path.$filename;
+    $return = new stdClass();
+    if (file_exists($file)) {
+        if (filesize($file)>20000000) { // 20mb
+            // do something else?
+            $return->success = false;
+        } else {
+            require 'class.phpmailer.php';
+            $mail = new PHPMailer;
+            //$mail->SMTPDebug = 3;
+            $mail->setFrom($mail_from, $mail_from_name);
+            $mail->addAddress($_GET['t']);
+            $mail->addAttachment($file);
+            $mail->isHTML(true);
+            $mail->Subject = $mail_subject;
+            $mail->Body    = $mail_html;
+            $mail->AltBody = strip_tags($mail_html);
+            if (!$mail->send()) {
+                $return->success = false;
+                $return->error = $mail->ErrorInfo;
+            } else {
+                $return->success = true;
+            }
+        }
+    } else {
+        $return->success = false;
+    }
+    exit(json_encode($return));
+
 } else {
     $files = array();
     foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS)) as $file)

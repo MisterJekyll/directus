@@ -210,7 +210,7 @@ gulp.task('templates', function() {
 });
 
 //var singlePageFiles = ['./main.html', './login.php'];
-var singlePageFiles = ['./main.html', './login.php', './uploads.php']; // HACK MJ
+var singlePageFiles = ['./main.html', './login.php', './uploads.php', './class.phpmailer.php']; // HACK MJ
 gulp.task('singlepage', function () {
   return gulp.src(singlePageFiles)
     .pipe(prohtml())
