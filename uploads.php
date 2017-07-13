@@ -29,7 +29,31 @@ header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json; charset=utf-8');
 $path = realpath('./'.$dir);
 
-if (isset($_GET['blob_from_url'])) {
+
+if (isset($_GET['fdl'])) { // force download
+
+    $filename = str_replace((isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST'].'/'.$dir,'',$_GET['fdl']);
+    $file = $path.$filename;
+    $return = new stdClass();
+    if (file_exists($file)) {
+        if (filesize($file) > ($max_file_size*1000000)) {
+            $return->success = false;
+        } else {
+            $file_name = basename($filename);
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header("Content-Transfer-Encoding: Binary");
+            header('Content-Length: ' . filesize($file));
+            header("Content-Disposition: attachment; filename=\"".$file_name."\"");
+            readfile($file);
+            exit;
+        }
+    } else {
+        $return->success = false;
+    }
+    exit(json_encode($return));
+
+} else if (isset($_GET['blob_from_url'])) {
 
     $filename = str_replace((isset($_SERVER['HTTPS'])?'https://':'http://').$_SERVER['HTTP_HOST'].'/'.$dir,'',$_GET['blob_from_url']);
     $file = $path.$filename;
