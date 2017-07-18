@@ -110,9 +110,9 @@ $pong = function(\Slim\Slim $app) {
         exit;
     }
 };
-if (DIRECTUS_ENV !== 'production') {
+//if (DIRECTUS_ENV !== 'production') {
     $pong($app);
-}
+//}
 
 /**
  * Catch user-related exceptions & produce client responses.
